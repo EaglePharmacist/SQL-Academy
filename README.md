@@ -272,3 +272,86 @@ SELECT COUNT(*) AS count
 FROM Class
 WHERE name LIKE "10%";
 ```
+### Задание 35. Сколько различных кабинетов школы использовались 2 сентября 2019 года для проведения занятий?
+```sql
+SELECT COUNT(DISTINCT classroom) AS count
+FROM Schedule
+WHERE date LIKE "2019-09-02%";
+```
+### Задание 36. Выведите информацию об обучающихся живущих на улице Пушкина (ul. Pushkina)?
+```sql
+SELECT *
+FROM Student
+WHERE address LIKE "ul. Pushkina%";
+```
+### Задание 37. Сколько лет самому молодому обучающемуся ?
+```sql
+SELECT TIMESTAMPDIFF(YEAR, birthday, CURDATE()) AS year
+FROM Student
+ORDER BY birthday DESC
+LIMIT 1;
+```
+### Задание 38. Сколько учениц с именем Анна (Anna) учится в школе?
+```sql
+SELECT COUNT(*) AS count
+FROM Student
+WHERE Student.first_name = "Anna";
+```
+### Задание 39. Сколько обучающихся в 10 B классе ?
+```sql
+SELECT COUNT(*) AS count
+FROM Student_in_class
+	JOIN CLass ON Student_in_class.class = Class.id
+WHERE Class.name = "10 B";
+```
+### Задание 40. Выведите название предметов, которые преподает Ромашкин П.П. (Romashkin P.P.). Обратите внимание, что в базе данных есть несколько учителей с такой фамилией.
+```sql
+SELECT name AS subjects
+FROM Subject
+	JOIN Schedule ON Subject.id = Schedule.subject
+	JOIN Teacher ON Schedule.teacher = Teacher.id
+WHERE last_name = "Romashkin"
+	AND first_name LIKE "P%"
+	AND middle_name LIKE "P%";
+```
+### Задание 41. Выясните, во сколько по расписанию начинается четвёртое занятие.
+```sql
+SELECT DISTINCT start_pair
+FROM Timepair
+	JOIN Schedule ON Timepair.id = Schedule.number_pair
+WHERE Schedule.number_pair = 4;
+```
+### Задание 42. Сколько времени обучающийся будет находиться в школе, учась со 2-го по 4-ый уч. предмет?
+```sql
+SELECT DISTINCT TIMEDIFF(
+		(
+			SELECT end_pair
+			FROM Timepair
+			WHERE id = 4
+		),
+		(
+			SELECT start_pair
+			FROM Timepair
+			WHERE id = 2
+		)
+	) AS time
+FROM Timepair;
+```
+### Задание 43. Выведите фамилии преподавателей, которые ведут физическую культуру (Physical Culture). Отсортируйте преподавателей по фамилии в алфавитном порядке.
+```sql
+SELECT last_name
+FROM Teacher
+	JOIN Schedule ON Teacher.id = Schedule.teacher
+	JOIN Subject ON Schedule.subject = Subject.id
+WHERE Subject.name = "Physical Culture"
+GROUP BY Teacher.last_name
+ORDER BY Teacher.last_name ASC;
+```
+### Задание 44. Найдите максимальный возраст (количество лет) среди обучающихся 10 классов на сегодняшний день. Для получения текущих даты и времени используйте функцию NOW().
+```sql
+SELECT MAX(TIMESTAMPDIFF(YEAR, birthday, NOW())) AS max_year
+FROM Student
+	JOIN Student_in_class ON Student.id = Student_in_class.student
+	JOIN Class ON Student_in_class.class = Class.id
+WHERE name LIKE "10%";
+```
